@@ -45,8 +45,15 @@ struct hash<hprose::Ref> {
     typedef std::size_t result_type;
 
     result_type operator()(const argument_type &ref) const {
+#ifdef HPROSE_HAS_HASH_INITIALIZER_LIST
         const result_type h1(std::hash<const void *>{}(ref.ptr));
         const result_type h2(std::hash<const std::type_info *>{}(ref.type));
+#else // HPROSE_HAS_HASH_INITIALIZER_LIST
+        std::hash<const void *> hash1;
+        const result_type h1 = hash1(ref.ptr);
+        std::hash<const std::type_info *> hash2;
+        const result_type h2 = hash2(ref.type);
+#endif // HPROSE_HAS_HASH_INITIALIZER_LIST
         return h1 ^ (h2 << 1);
     }
 };

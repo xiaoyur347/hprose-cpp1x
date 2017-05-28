@@ -33,9 +33,15 @@ void readObject(T &v, Reader &reader) {
     auto index = reader.readCount();
     auto fields = reader.fieldsRef[index];
     reader.setRef(Ref(v));
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
     for (auto &field : fields) {
         field.decode(&v, reader);
     }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+    for (auto field = fields.begin(); field != fields.end(); ++field) {
+        field->decode(&v, reader);
+    }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
     reader.stream.ignore();
 }
 

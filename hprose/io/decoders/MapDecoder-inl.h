@@ -96,9 +96,15 @@ void readObjectAsMap(T &v, Reader &reader) {
     auto index = reader.readCount();
     auto fields = reader.fieldsRef[index];
     reader.setRef(Ref(v));
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
     for (auto &field : fields) {
         v[field.alias] = reader.unserialize<typename T::mapped_type>();
     }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+    for (auto field = fields.begin(); field != fields.end(); ++field) {
+        v[field->alias] = reader.unserialize<typename T::mapped_type>();
+    }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
     reader.stream.ignore();
 }
 

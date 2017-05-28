@@ -157,7 +157,7 @@ public:
 #else // HPROSE_HAS_LAMBDA_CAPTURE
         return std::async(std::launch::async, [this, name, args, settings]() {
 #endif // HPROSE_HAS_LAMBDA_CAPTURE
-            return invoke<typename result_of_future<R>::type>(name, args, settings);
+            return this->invoke<typename result_of_future<R>::type>(name, args, settings);
         });
     }
 

@@ -68,9 +68,16 @@ void readList(T &v, Reader &reader) {
     auto count = reader.readCount();
     makeSize(v, count);
     reader.setRef(Ref(v));
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
     for(auto &e : v) {
         reader.readValue(e);
     }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+    for(auto e = v.begin(); e != v.end(); ++e)
+    {
+        reader.readValue(*e);
+    }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
     reader.stream.ignore();
 }
 

@@ -22,6 +22,7 @@
 
 #include <hprose/io/Tags.h>
 #include <hprose/io/ClassManager.h>
+#include <hprose/util/TypeIndex.h>
 #include <hprose/util/Util.h>
 #include <hprose/Ref.h>
 
@@ -44,7 +45,6 @@
 #include <bitset>
 #include <unordered_map>
 #include <type_traits>
-#include <typeindex>
 
 namespace hprose {
 namespace io {
@@ -318,9 +318,15 @@ public:
             return;
         }
         writeListHeader(count);
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
         for (const auto &e : lst) {
             writeValue(e);
         }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+        for (auto e = lst.cbegin(); e != lst.cend(); ++e) {
+            writeValue(*e);
+        }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
         writeListFooter();
     }
 
@@ -363,9 +369,15 @@ public:
             return;
         }
         writeListHeader(count);
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
         for (const auto &e : lst) {
             writeBool(e);
         }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+        for (auto e = lst.cbegin(); e != lst.cend(); ++e) {
+            writeBool(*e);
+        }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
         writeListFooter();
     }
 
@@ -373,15 +385,25 @@ public:
     void writeList(const std::forward_list<T> &lst) {
         if (writeRef(lst)) return;
         setRef(lst);
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
         size_t count = std::distance(std::begin(lst), std::end(lst));
+#else // HPROSE_HAS_RANGE_BASED_FOR
+        size_t count = std::distance(lst.begin(), lst.end());
+#endif // HPROSE_HAS_RANGE_BASED_FOR
         if (count == 0) {
             writeEmptyList();
             return;
         }
         writeListHeader(count);
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
         for (const auto &e : lst) {
             writeValue(e);
         }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+        for (auto e = lst.cbegin(); e != lst.cend(); ++e) {
+            writeValue(*e);
+        }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
         writeListFooter();
     }
 
@@ -430,10 +452,17 @@ public:
             return;
         }
         writeMapHeader(count);
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
         for (const auto &e : map) {
             writeValue(e.first);
             writeValue(e.second);
         }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+        for (auto e = map.cbegin(); e != map.cend(); ++e) {
+            writeValue(e->first);
+            writeValue(e->second);
+        }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
         writeMapFooter();
     }
 
@@ -462,9 +491,15 @@ public:
         setRef(o);
         stream << TagObject << index << TagOpenbrace;
         auto fields = cache.fields;
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
         for (const auto &field : fields) {
             field.encode(&o, *this);
         }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+        for (auto field = fields.cbegin(); field != fields.cend(); ++field) {
+            field->encode(&o, *this);
+        }
+#endif // HPROSE_HAS_RANGE_BASED_FOR
         stream << TagClosebrace;
     }
 

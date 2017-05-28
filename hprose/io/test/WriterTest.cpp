@@ -32,9 +32,11 @@
     EXPECT_EQ(stream.str(), expected); \
 }
 
+#ifdef HPROSE_HAS_NULLPTR
 TEST(Writer, SerializeNull) {
     T(nullptr, "n");
 }
+#endif // HPROSE_HAS_NULLPTR
 
 TEST(Writer, SerializeBool) {
     T(true, "t");
@@ -424,7 +426,7 @@ TEST(Writer, SerializeStruct) {
     st.Age = &age;
     st.OOXX = false;
     st.Test.ID = 200;
-     std::ostringstream stream;
+    std::ostringstream stream;
     hprose::io::Writer writer(stream, false);
     writer.serialize(st);
     EXPECT_EQ(stream.str(), R"(c5"Test2"6{s4"ooxx"s11"testStruct2"s2"id"s4"name"s3"age"s4"test"}o0{fr6;i100;s3"Tom"i18;c4"Test"1{s2"id"}o1{i200;}})");

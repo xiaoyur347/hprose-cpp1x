@@ -90,6 +90,15 @@ inline void decode(std::basic_string<Element, Traits, Allocator> &v, Reader &rea
     v = reader.readString<std::basic_string<Element, Traits, Allocator>>();
 }
 
+inline void decode(std::tm &v, Reader &reader) {
+    char tag = static_cast<char>(reader.stream.get());
+    if (tag == TagDate) {
+        v = reader.readDateTimeWithoutTag();
+    } else {
+        v = reader.readTimeWithoutTag();
+    }
+}
+
 template<class T>
 inline typename std::enable_if<
     std::is_pointer<T>::value

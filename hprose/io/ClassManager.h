@@ -24,15 +24,34 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
-#include <typeindex>
+#include <hprose/util/TypeIndex.h>
 #include <hprose/util/PreProcessor.h>
 
 #define HPROSE_REG_CLASS_1(Class, Body) HPROSE_REG_CLASS_2(Class, #Class, Body)
+
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
+#define HPROSE_WRITE_FIELDS(classCache, stream, fields)            \
+    for (auto &&field : fields) {                                  \
+        classCache.fieldMap[field.alias] = field;                  \
+        stream << TagString;                                       \
+        util::WriteInt(stream, util::UTF16Length(field.alias));    \
+        stream << TagQuote << field.alias << TagQuote;             \
+    }
+#else // HPROSE_HAS_RANGE_BASED_FOR
+#define HPROSE_WRITE_FIELDS(classCache, stream, fields)            \
+    for (auto field = fields.begin(); field != fields.end(); ++field) { \
+        classCache.fieldMap[field->alias] = *field;                \
+        stream << TagString;                                       \
+        util::WriteInt(stream, util::UTF16Length(field->alias));   \
+        stream << TagQuote << field->alias << TagQuote;            \
+    } 
+#endif // HPROSE_HAS_RANGE_BASED_FOR
+
 #define HPROSE_REG_CLASS_2(Class, Alias, Body)                     \
 namespace hprose { namespace io {                                  \
                                                                    \
 template<>                                                         \
-std::vector<FieldCache> getClassFields<Class>() {                  \
+inline std::vector<FieldCache> getClassFields<Class>() {           \
     typedef const Class * ConstClassPointer;                       \
     typedef Class * ClassPointer;                                  \
     std::vector<FieldCache> fields;                                \
@@ -41,7 +60,7 @@ std::vector<FieldCache> getClassFields<Class>() {                  \
 }                                                                  \
                                                                    \
 template<>                                                         \
-void initClassCache<Class>(ClassCache &classCache) {               \
+inline void initClassCache<Class>(ClassCache &classCache) {        \
     auto fields = getClassFields<Class>();                         \
     auto count = fields.size();                                    \
     std::ostringstream stream;                                     \
@@ -50,12 +69,7 @@ void initClassCache<Class>(ClassCache &classCache) {               \
     stream << TagQuote << Alias << TagQuote;                       \
     if (count > 0) util::WriteInt(stream, count);                  \
     stream << TagOpenbrace;                                        \
-    for (auto &&field : fields) {                                  \
-        classCache.fieldMap[field.alias] = field;                  \
-        stream << TagString;                                       \
-        util::WriteInt(stream, util::UTF16Length(field.alias));    \
-        stream << TagQuote << field.alias << TagQuote;             \
-    }                                                              \
+    HPROSE_WRITE_FIELDS(classCache, stream, fields);               \
     stream << TagClosebrace;                                       \
     classCache.alias = Alias;                                      \
     classCache.fields = std::move(fields);                         \

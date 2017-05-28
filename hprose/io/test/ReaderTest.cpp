@@ -50,7 +50,9 @@ TEST(Reader, UnserializeBool) {
     std::string trueValue("true");
     T(bool, true, true);
     T(bool, false, false);
+#ifdef HPROSE_HAS_NULLPTR
     T(bool, nullptr, false);
+#endif
     T(bool, "", false);
     T(bool, 0, false);
     T(bool, 1, true);
@@ -68,7 +70,9 @@ TEST(Reader, UnserializeInt) {
     std::string intValue("1234567");
     T(int64_t, true, 1);
     T(int64_t, false, 0);
+#ifdef HPROSE_HAS_NULLPTR
     T(int64_t, nullptr, 0);
+#endif
     T(int64_t, "", 0);
     T(int64_t, 0, 0);
     T(int64_t, 1, 1);
@@ -102,7 +106,9 @@ TEST(Reader, UnserializeFloat) {
     std::string floatValue("3.14159");
     T(float, true, 1.f);
     T(float, false, 0.f);
+#ifdef HPROSE_HAS_NULLPTR
     T(float, nullptr, 0.f);
+#endif
     T(float, "", 0.f);
     T(float, 0, 0.f);
     T(float, 1, 1.f);
@@ -120,7 +126,9 @@ TEST(Reader, UnserializeDouble) {
     std::string doubleValue("3.14159");
     T(double, true, 1.0);
     T(double, false, 0.0);
+#ifdef HPROSE_HAS_NULLPTR
     T(double, nullptr, 0.0);
+#endif
     T(double, "", 0.0);
     T(double, 0, 0.0);
     T(double, 1, 1.0);
@@ -145,7 +153,9 @@ TEST(Reader, UnserializeComplexFloat) {
 #endif // HPROSE_HAS_ARRAY_INITIALIZER_LIST
     T(std::complex<float>, true, 1.f);
     T(std::complex<float>, false, 0.f);
+#ifdef HPROSE_HAS_NULLPTR
     T(std::complex<float>, nullptr, 0.f);
+#endif
     T(std::complex<float>, "", 0.f);
     T(std::complex<float>, 0, 0.f);
     T(std::complex<float>, 1, 1.f);
@@ -172,7 +182,9 @@ TEST(Reader, UnserializeComplexDouble) {
 #endif // HPROSE_HAS_ARRAY_INITIALIZER_LIST
     T(std::complex<double>, true, 1.0);
     T(std::complex<double>, false, 0.0);
+#ifdef HPROSE_HAS_NULLPTR
     T(std::complex<double>, nullptr, 0.0);
+#endif
     T(std::complex<double>, "", 0.0);
     T(std::complex<double>, 0, 0.0);
     T(std::complex<double>, 1, 1.0);
@@ -189,7 +201,9 @@ TEST(Reader, UnserializeComplexDouble) {
 }
 
 TEST(Reader, UnserializePointer) {
+#ifdef HPROSE_HAS_NULLPTR
     T(int *, nullptr, nullptr);
+#endif // HPROSE_HAS_NULLPTR
     int i = 5;
     std::wstring s = L"hello";
     std::stringstream stream;
@@ -260,10 +274,13 @@ TEST(Reader, UnserializeArray) {
         .serialize(b)
         .serialize(a)
         .serialize(b)
+#ifdef HPROSE_HAS_NULLPTR
         .serialize(nullptr)
+#endif
         .serialize("");
     Reader reader(stream, false);
 
+#ifdef HPROSE_HAS_RANGE_BASED_FOR
     int a1[5];
     reader.unserialize(a1);
     EXPECT_EQ(a1[0], 1);
@@ -279,6 +296,7 @@ TEST(Reader, UnserializeArray) {
     EXPECT_EQ(b1[2], 'l');
     EXPECT_EQ(b1[3], 'l');
     EXPECT_EQ(b1[4], 'o');
+#endif // HPROSE_HAS_RANGE_BASED_FOR
 
     std::tuple<int, int, int, int, int> s;
     reader.unserialize(s);    

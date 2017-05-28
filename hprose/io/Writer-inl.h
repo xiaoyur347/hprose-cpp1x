@@ -30,9 +30,11 @@
 namespace hprose {
 namespace io {
 
+#ifdef HPROSE_HAS_NULLPTR
 inline void encode(std::nullptr_t, Writer &writer) {
     writer.writeNull();
 }
+#endif // HPROSE_HAS_NULLPTR
 
 inline void encode(bool v, Writer &writer) {
     writer.writeBool(v);

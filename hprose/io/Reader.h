@@ -30,6 +30,7 @@
 #include <hprose/io/decoders/ListDecoder.h>
 #include <hprose/io/decoders/MapDecoder.h>
 #include <hprose/io/decoders/ObjectDecoder.h>
+#include <hprose/util/TypeIndex.h>
 #include <hprose/Variant.h>
 
 #include <ctime>
@@ -40,7 +41,6 @@
 #ifdef HPROSE_HAS_CODECVT
 #include <codecvt>
 #endif // HPROSE_HAS_CODECVT
-#include <typeindex>
 #include <type_traits>
 #include <vector>
 #include <unordered_map>
