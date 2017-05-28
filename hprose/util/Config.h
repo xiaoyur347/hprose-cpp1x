@@ -92,3 +92,51 @@
 #else
     #define HPROSE_HAS_LAMBDA_CAPTURE
 #endif
+
+#if defined(__GNUC__)
+    #if defined(__clang__) || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5)
+        #define HPROSE_HAS_RANGE_BASED_FOR
+    #endif
+#else
+    #define HPROSE_HAS_RANGE_BASED_FOR
+#endif
+
+#if defined(__GNUC__)
+    #if defined(__clang__) || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5)
+        #define HPROSE_HAS_NULLPTR
+    #endif
+#else
+    #define HPROSE_HAS_NULLPTR
+#endif
+
+#if defined(__GNUC__)
+    #if defined(__clang__) || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5)
+        #define HPROSE_HAS_HASH_INITIALIZER_LIST
+    #endif
+#else
+    #define HPROSE_HAS_HASH_INITIALIZER_LIST
+#endif
+
+#if defined(__GNUC__)
+    #if defined(__clang__) || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5)
+        #define HPROSE_HAS_UNRESTRICTED_UNIONS
+    #endif
+#else
+    #define HPROSE_HAS_UNRESTRICTED_UNIONS
+#endif
+
+#if defined(__GNUC__)
+    #if defined(__clang__) || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5)
+        #define HPROSE_HAS_TYPEINDEX
+    #endif
+#else
+    #define HPROSE_HAS_TYPEINDEX
+#endif
+
+#if defined(__GNUC__)
+    #if defined(__clang__) || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8)
+        #define HPROSE_HAS_VARIADIC_CAPTURE
+    #endif
+#else
+    #define HPROSE_HAS_VARIADIC_CAPTURE
+#endif
