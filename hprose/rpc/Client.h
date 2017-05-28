@@ -126,7 +126,7 @@ public:
         !is_future<R>::value,
         R
     >::type
-    invoke(const std::string &name, const std::vector<T> &args, const InvokeSettings *settings = nullptr) {
+    invoke(const std::string &name, const T &args, const InvokeSettings *settings = nullptr) {
         auto context = getContext(settings);
         if (context.settings.oneway) {
             throw std::runtime_error("oneway must return void type");
@@ -140,7 +140,7 @@ public:
     typename std::enable_if<
         std::is_void<R>::value
     >::type
-    invoke(const std::string &name, const std::vector<T> &args, const InvokeSettings *settings = nullptr) {
+    invoke(const std::string &name, const T &args, const InvokeSettings *settings = nullptr) {
         auto context = getContext(settings);
         auto request = encode(name, args, context);
         sendRequest(request, context);
@@ -151,7 +151,7 @@ public:
         is_future<R>::value,
         R
     >::type
-    invoke(const std::string &name, const std::vector<T> &args, const InvokeSettings *settings = nullptr) {
+    invoke(const std::string &name, const T &args, const InvokeSettings *settings = nullptr) {
 #ifdef HPROSE_HAS_LAMBDA_CAPTURE
         return std::async(std::launch::async, [=] {
 #else // HPROSE_HAS_LAMBDA_CAPTURE
@@ -240,6 +240,92 @@ private:
         std::string
     >::type
     decode(const std::string &data, const std::vector<T> &args, const ClientContext &context) {
+        (void)args;
+        checkData(data);
+        if (context.settings.mode == RawWithEndTag) {
+            return data;
+        } else if (context.settings.mode == Raw) {
+            return data.substr(0, data.size() - 1);
+        }
+
+        std::string result;
+        std::istringstream stream(data);
+        io::Reader reader(stream);
+        auto tag = reader.stream.get();
+        if (tag == io::TagResult) {
+            if (context.settings.mode == Normal) {
+                reader.unserialize(result);
+            } else if (context.settings.mode == Serialized) {
+                result = reader.readRaw();
+            }
+            tag = reader.stream.get();
+            if (tag == io::TagArgument) {
+
+            }
+        } else if (tag == io::TagError) {
+            throw std::runtime_error(reader.readString<std::string>());
+        }
+        if (tag != io::TagEnd) {
+            throw std::runtime_error("wrong response: \r\n" + data);
+        }
+        return result;
+    }
+
+    template<class... Type>
+    std::string encode(const std::string &name, const std::tuple<Type...> &args, const ClientContext &context) {
+        std::ostringstream stream;
+        io::Writer writer(stream, context.settings.simple);
+        stream << io::TagCall;
+        writer.writeString(name);
+        size_t count = std::tuple_size<std::tuple<Type...>>::value;
+        if (count != 0 || context.settings.byref) {
+            writer.reset();
+            writer.writeList(args);
+            if (context.settings.byref) {
+                writer.writeBool(true);
+            }
+        }
+        stream << io::TagEnd;
+        return stream.str();
+    }
+
+    template<class R, class... Type>
+    typename std::enable_if<
+        !std::is_same<R, std::string>::value,
+        R
+    >::type
+    decode(const std::string &data, const std::tuple<Type...> &args, const ClientContext &context) {
+        (void)args;
+        checkData(data);
+        if (context.settings.mode != Normal) {
+            throw std::runtime_error("only normal mode can return non string type");
+        }
+
+        R result;
+        std::istringstream stream(data);
+        io::Reader reader(stream);
+        auto tag = reader.stream.get();
+        if (tag == io::TagResult) {
+            reader.unserialize(result);
+            tag = reader.stream.get();
+            if (tag == io::TagArgument) {
+
+            }
+        } else if (tag == io::TagError) {
+            throw std::runtime_error(reader.readString<std::string>());
+        }
+        if (tag != io::TagEnd) {
+            throw std::runtime_error("wrong response: \r\n" + data);
+        }
+        return result;
+    }
+
+    template<class R, class... Type>
+    typename std::enable_if<
+        std::is_same<R, std::string>::value,
+        std::string
+    >::type
+    decode(const std::string &data, const std::tuple<Type...> &args, const ClientContext &context) {
         (void)args;
         checkData(data);
         if (context.settings.mode == RawWithEndTag) {

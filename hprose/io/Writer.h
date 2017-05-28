@@ -20,10 +20,11 @@
 
 #pragma once
 
-#include <hprose/io/Tags.h>
-#include <hprose/io/ClassManager.h>
+#include <hprose/util/Tuple.h>
 #include <hprose/util/TypeIndex.h>
 #include <hprose/util/Util.h>
+#include <hprose/io/Tags.h>
+#include <hprose/io/ClassManager.h>
 #include <hprose/Ref.h>
 
 #include <ostream>
@@ -41,7 +42,6 @@
 #include <array>
 #include <vector>
 #include <forward_list>
-#include <tuple>
 #include <bitset>
 #include <unordered_map>
 #include <type_traits>

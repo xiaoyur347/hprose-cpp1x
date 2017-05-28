@@ -20,12 +20,12 @@
 
 #pragma once
 
+#include <hprose/util/PreProcessor.h>
+#include <hprose/util/TypeIndex.h>
 #include <string>
 #include <functional>
 #include <vector>
 #include <unordered_map>
-#include <hprose/util/TypeIndex.h>
-#include <hprose/util/PreProcessor.h>
 
 #define HPROSE_REG_CLASS_1(Class, Body) HPROSE_REG_CLASS_2(Class, #Class, Body)
 

@@ -36,3 +36,16 @@ TEST(HttpClient, Async) {
     auto result = client.invoke<std::future<std::string> >("hello", std::vector<std::string>({"world"}));
     EXPECT_EQ(result.get(), "Hello world");
 }
+
+TEST(HttpClient, BasicTuple) {
+    HttpClient client("http://hprose.com/example/");
+    std::tuple<std::string> t;
+    auto result = client.invoke<std::string>("hello", std::make_tuple("world"));
+    EXPECT_EQ(result, "Hello world");
+}
+
+TEST(HttpClient, AsyncTuple) {
+    HttpClient client("http://hprose.com/example/");
+    auto result = client.invoke<std::future<std::string> >("hello", std::make_tuple("world"));
+    EXPECT_EQ(result.get(), "Hello world");
+}

@@ -21,9 +21,9 @@
 #pragma once
 
 #include <hprose/Uri.h>
+#include <hprose/rpc/Client.h>
 #include <hprose/http/Client.h>
 #include <hprose/http/asio/Transport.h>
-#include <hprose/rpc/Client.h>
 
 #include <asio.hpp>
 

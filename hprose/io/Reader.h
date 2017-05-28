@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <hprose/util/Tuple.h>
+#include <hprose/util/TypeIndex.h>
 #include <hprose/io/ClassManager.h>
 #include <hprose/io/RawReader.h>
 #include <hprose/io/decoders/BoolDecoder.h>
@@ -30,7 +32,6 @@
 #include <hprose/io/decoders/ListDecoder.h>
 #include <hprose/io/decoders/MapDecoder.h>
 #include <hprose/io/decoders/ObjectDecoder.h>
-#include <hprose/util/TypeIndex.h>
 #include <hprose/Variant.h>
 
 #include <ctime>
