@@ -56,7 +56,8 @@ set(TEST_FILES
         hprose/test/VariantTest.cpp
         hprose/io/test/WriterTest.cpp
         hprose/io/test/ReaderTest.cpp
-        hprose/rpc/asio/test/HttpClientTest.cpp)
+        hprose/rpc/asio/test/HttpClientTest.cpp
+        hprose/util/test/ApplyTest.cpp)
 
 add_executable(IOTest.out ${TEST_FILES})
 target_include_directories(IOTest.out PUBLIC "${GTEST_DIR}/include")
