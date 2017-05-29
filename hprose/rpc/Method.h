@@ -1,0 +1,63 @@
+/**********************************************************\
+|                                                          |
+|                          hprose                          |
+|                                                          |
+| Official WebSite: http://www.hprose.com/                 |
+|                   http://www.hprose.org/                 |
+|                                                          |
+\**********************************************************/
+
+/**********************************************************\
+ *                                                        *
+ * Method.h                                               *
+ *                                                        *
+ * hprose Method for cpp.                                 *
+ *                                                        *
+ * LastModified: May 02, 2017                             *
+ * Author: xiaoyur347 <xiaoyur347@gmail.com>              *
+ *                                                        *
+\**********************************************************/
+
+#pragma once
+
+#include <hprose/rpc/ResultMode.h>
+#include <hprose/rpc/ServiceContext.h>
+
+#include <string>
+
+namespace hprose {
+namespace rpc {
+
+class Method {
+public:
+    typedef std::function<void(ServiceContext &context)> task;
+
+    task method;
+    ResultMode mode;
+    bool simple;
+    bool oneway;
+
+    Method()
+        : mode(Normal),
+          simple(true),
+          oneway(false) {
+
+    }
+
+    Method(task method,
+        ResultMode mode = Normal,
+        bool simple = true,
+        bool oneway = false)
+        : method(method),
+          mode(mode),
+          simple(simple),
+          oneway(oneway) {
+    }
+
+    void invoke(ServiceContext &context) const {
+        method(context);
+    }
+};
+
+}
+} // namespace hprose.rpc
