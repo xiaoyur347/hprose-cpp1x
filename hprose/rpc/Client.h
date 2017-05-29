@@ -24,6 +24,7 @@
 #include <hprose/io/Reader.h>
 #include <hprose/rpc/Context.h>
 #include <hprose/rpc/Filter.h>
+#include <hprose/rpc/ResultMode.h>
 
 #include <algorithm>
 #include <string>
@@ -53,13 +54,6 @@ struct result_of_future<std::future<T>> {
 };
 
 class Client;
-
-enum ResultMode {
-    Normal,
-    Serialized,
-    Raw,
-    RawWithEndTag
-};
 
 struct InvokeSettings {
     ResultMode mode;
