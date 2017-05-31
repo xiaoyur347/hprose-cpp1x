@@ -69,7 +69,7 @@ template<typename C, typename R, typename... A>
 R return_type(R(C::*)(A...));
 
 template<typename F, typename Tuple, std::size_t... I>
-auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
+inline auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
     -> decltype(return_type(f))
 {
     auto functor = std::bind(std::forward<F>(f),
@@ -95,7 +95,7 @@ auto apply(F&& f, Tuple&& t)
 }
 
 template<typename F, typename Object, typename Tuple, std::size_t... I>
-auto apply_impl(F&& f, Object&& object, Tuple&& t, std::index_sequence<I...>)
+inline auto apply_impl(F&& f, Object&& object, Tuple&& t, std::index_sequence<I...>)
     -> decltype(return_type(f))
 {
     (void)t;
