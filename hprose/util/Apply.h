@@ -21,6 +21,7 @@
 #pragma once
 
 #include <hprose/util/Tuple.h>
+#include <hprose/util/TypeTraits.h>
 #include <functional>
 #include <type_traits>
 
@@ -61,16 +62,9 @@ struct is_target_type :
     >
 {};
 
-//https://stackoverflow.com/questions/41301536/get-function-return-type-in-template
-template<typename R, typename... A>
-R return_type(R(*)(A...));
-
-template<typename C, typename R, typename... A>
-R return_type(R(C::*)(A...));
-
 template<typename F, typename Tuple, std::size_t... I>
 inline auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
-    -> decltype(return_type(f))
+    -> typename function_traits<F>::ret_type
 {
     auto functor = std::bind(std::forward<F>(f),
         std::get<I>(std::forward<Tuple>(t))...);
@@ -96,7 +90,7 @@ auto apply(F&& f, Tuple&& t)
 
 template<typename F, typename Object, typename Tuple, std::size_t... I>
 inline auto apply_impl(F&& f, Object&& object, Tuple&& t, std::index_sequence<I...>)
-    -> decltype(return_type(f))
+    -> typename function_traits<F>::ret_type
 {
     (void)t;
     auto functor = std::bind(std::forward<F>(f),
@@ -125,7 +119,7 @@ auto apply(F&& f, Object&& object)
                 Object,
                 F
             >::value,
-            decltype(return_type(f))
+            typename function_traits<F>::ret_type
         >::type
 {
     auto functor = std::bind(std::forward<F>(f),
