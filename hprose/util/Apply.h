@@ -75,8 +75,8 @@ template<typename F, typename Tuple>
 auto apply(F&& f, Tuple&& t)
     ->  typename std::enable_if<
             !is_target_type<
-                Tuple,
-                F
+                Tuple&&,
+                typename std::decay<F>::type
             >::value,
             decltype(apply_impl(std::forward<F>(f),
                 std::forward<Tuple>(t),
@@ -116,8 +116,8 @@ template<typename F, typename Object>
 auto apply(F&& f, Object&& object)
     ->  typename std::enable_if<
             is_target_type<
-                Object,
-                F
+                Object&&,
+                typename std::decay<F>::type
             >::value,
             typename function_traits<F>::ret_type
         >::type

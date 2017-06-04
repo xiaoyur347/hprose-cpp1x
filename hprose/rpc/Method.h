@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <hprose/util/Apply.h>
 #include <hprose/rpc/ResultMode.h>
 #include <hprose/rpc/ServiceContext.h>
 
@@ -58,6 +59,30 @@ public:
         method(context);
     }
 };
+
+template<typename F>
+Method makeMethod(F&&f) {
+    typedef typename function_traits<F>::arg_type arg_type;
+    auto fun = [f](hprose::rpc::ServiceContext &context) {
+        arg_type s;
+        context.reader.unserialize(s);
+        auto ret = hprose::util::apply(f, s);
+        context.writer.serialize(ret);
+    };
+    return Method(fun);
+}
+
+template<typename F, typename Object>
+Method makeMethod(F&&f, Object&& object) {
+    typedef typename function_traits<F>::arg_type arg_type;
+    auto fun = [f, object](hprose::rpc::ServiceContext &context) {
+        arg_type s;
+        context.reader.unserialize(s);
+        auto ret = hprose::util::apply(f, object, s);
+        context.writer.serialize(ret);
+    };
+    return Method(fun);
+}
 
 }
 } // namespace hprose.rpc

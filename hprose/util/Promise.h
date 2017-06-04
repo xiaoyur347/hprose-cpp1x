@@ -49,7 +49,7 @@
 #pragma once
 
 #include <hprose/util/Config.h>
-#include <hprose/util/Tuple.h>
+#include <hprose/util/TypeTraits.h>
 #include <algorithm>
 #include <atomic>
 #include <exception>
@@ -555,35 +555,6 @@ template<typename ...T>
 struct type_tuple<std::tuple<T...>> :
     public type_tuple_impl<std::tuple<T...>, std::tuple_size<std::tuple<T...>>::value> {
     static const std::size_t size_ = std::tuple_size<std::tuple<T...>>::value;
-};
-
-template<typename T>
-struct tuple_remove_reference {
-    typedef typename std::remove_reference<T>::type r_type;
-    typedef typename std::remove_cv<r_type>::type type;
-};
-
-template<typename T, std::size_t SIZE>
-struct tuple_remove_reference<T[SIZE]> {
-    typedef typename tuple_remove_reference<const T *>::type type;
-};
-
-template<typename TUPLE>
-struct remove_reference_tuple {
-    static const std::size_t size_ = std::tuple_size<TUPLE>::value;
-
-    template<size_t SIZE, std::size_t... I>
-    struct converted {
-        typedef std::tuple<typename tuple_remove_reference<typename std::tuple_element<I, TUPLE>::type>::type...> type;
-    };
-
-    template<std::size_t... I>
-    static converted<size_, I...> get_type(const std::index_sequence<I...> &) {
-        return converted<size_, I...>();
-    }
-
-    typedef decltype(get_type(std::make_index_sequence<size_>())) converted_type;
-    typedef typename converted_type::type type;
 };
 
 template<typename FUNC>
