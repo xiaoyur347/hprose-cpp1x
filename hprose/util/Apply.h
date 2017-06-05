@@ -66,6 +66,7 @@ template<typename F, typename Tuple, std::size_t... I>
 inline auto apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
     -> typename function_traits<F>::ret_type
 {
+    (void)t;
     auto functor = std::bind(std::forward<F>(f),
         std::get<I>(std::forward<Tuple>(t))...);
     return functor();
