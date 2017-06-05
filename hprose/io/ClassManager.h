@@ -76,11 +76,11 @@ inline void initClassCache<Class>(ClassCache &classCache) {        \
     classCache.data = stream.str();                                \
 }                                                                  \
                                                                    \
-inline void encode(const Class &v, Writer &writer) {               \
+void encode(const Class &v, Writer &writer) {                      \
     writer.writeObject(v);                                         \
 }                                                                  \
                                                                    \
-inline void decode(Class &v, Reader &reader) {                     \
+void decode(Class &v, Reader &reader) {                            \
     reader.readObject(v);                                          \
 }                                                                  \
                                                                    \
