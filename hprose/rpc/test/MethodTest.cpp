@@ -55,36 +55,37 @@ private:
 };
 
 TEST(Method, GlobalNoParamNoReturn) {
-    //makeMethod(GlobalNoParamNoReturn);
     makeMethod(&GlobalNoParamNoReturn);
 }
 
 TEST(Method, GlobalParamNoReturn) {
-    //makeMethod(GlobalParamNoReturn);
     makeMethod(&GlobalParamNoReturn);
 }
 
 TEST(Method, GlobalParamReturn) {
-    //makeMethod(GlobalParamReturn);
     makeMethod(&GlobalParamReturn);
 }
 
 TEST(Method, ClassNoParamNoReturn) {
     MethodClass c;
     makeMethod(&MethodClass::NoParamNoReturn, &c);
+    makeMethod(&MethodClass::NoParamNoReturn, c);
 }
 
 TEST(Method, ClassParamNoReturn) {
     MethodClass c;
     makeMethod(&MethodClass::ParamNoReturn, &c);
+    makeMethod(&MethodClass::ParamNoReturn, c);
 }
 
 TEST(Method, ClassParamReturn) {
     MethodClass c;
     makeMethod(&MethodClass::ParamReturn, &c);
+    makeMethod(&MethodClass::ParamReturn, c);
 }
 
 TEST(Method, ClassConstReturn) {
     MethodClass c;
     makeMethod(&MethodClass::ConstReturn, &c);
+    makeMethod(&MethodClass::ConstReturn, c);
 }
