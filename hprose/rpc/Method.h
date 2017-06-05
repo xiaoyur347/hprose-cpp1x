@@ -61,7 +61,11 @@ public:
 };
 
 template<typename F>
-Method makeMethod(F&&f) {
+    typename std::enable_if<
+        !std::is_void<typename function_traits<F>::ret_type>::value,
+        Method
+    >::type
+makeMethod(F&&f) {
     typedef typename function_traits<F>::arg_type arg_type;
     auto fun = [f](hprose::rpc::ServiceContext &context) {
         arg_type s;
@@ -73,13 +77,49 @@ Method makeMethod(F&&f) {
 }
 
 template<typename F, typename Object>
-Method makeMethod(F&&f, Object&& object) {
+    typename std::enable_if<
+        !std::is_void<typename function_traits<F>::ret_type>::value,
+        Method
+    >::type
+makeMethod(F&&f, Object&& object) {
     typedef typename function_traits<F>::arg_type arg_type;
     auto fun = [f, object](hprose::rpc::ServiceContext &context) {
         arg_type s;
         context.reader.unserialize(s);
         auto ret = hprose::util::apply(f, object, s);
         context.writer.serialize(ret);
+    };
+    return Method(fun);
+}
+
+template<typename F>
+    typename std::enable_if<
+        std::is_void<typename function_traits<F>::ret_type>::value,
+        Method
+    >::type
+makeMethod(F&&f) {
+    typedef typename function_traits<F>::arg_type arg_type;
+    auto fun = [f](hprose::rpc::ServiceContext &context) {
+        arg_type s;
+        context.reader.unserialize(s);
+        hprose::util::apply(f, s);
+        context.writer.serialize(nullptr);
+    };
+    return Method(fun);
+}
+
+template<typename F, typename Object>
+    typename std::enable_if<
+        std::is_void<typename function_traits<F>::ret_type>::value,
+        Method
+    >::type
+makeMethod(F&&f, Object&& object) {
+    typedef typename function_traits<F>::arg_type arg_type;
+    auto fun = [f, object](hprose::rpc::ServiceContext &context) {
+        arg_type s;
+        context.reader.unserialize(s);
+        hprose::util::apply(f, object, s);
+        context.writer.serialize(nullptr);
     };
     return Method(fun);
 }
