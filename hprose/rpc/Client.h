@@ -86,6 +86,7 @@ private:
 
 class Client {
 public:
+    virtual ~Client() {}
     inline const std::string &getUri() const {
         return uri;
     }
@@ -199,7 +200,7 @@ private:
 
     template<class R, class T>
     typename std::enable_if<
-        !std::is_same<R, std::string>::value,
+        !std::is_void<R>::value && !std::is_same<R, std::string>::value,
         R
     >::type
     decode(const std::string &data, const std::vector<T> &args, const ClientContext &context) {
@@ -226,6 +227,35 @@ private:
             throw std::runtime_error("wrong response: \r\n" + data);
         }
         return result;
+    }
+
+    template<class R, class T>
+    typename std::enable_if<
+        std::is_void<R>::value,
+        R
+    >::type
+    decode(const std::string &data, const std::vector<T> &args, const ClientContext &context) {
+        (void)args;
+        checkData(data);
+        if (context.settings.mode != Normal) {
+            throw std::runtime_error("only normal mode can return non string type");
+        }
+
+        std::istringstream stream(data);
+        io::Reader reader(stream);
+        auto tag = reader.stream.get();
+        if (tag == io::TagResult) {
+            reader.readNull();
+            tag = reader.stream.get();
+            if (tag == io::TagArgument) {
+
+            }
+        } else if (tag == io::TagError) {
+            throw std::runtime_error(reader.readString<std::string>());
+        }
+        if (tag != io::TagEnd) {
+            throw std::runtime_error("wrong response: \r\n" + data);
+        }
     }
 
     template<class R, class T>
@@ -285,7 +315,7 @@ private:
 
     template<class R, class... Type>
     typename std::enable_if<
-        !std::is_same<R, std::string>::value,
+        !std::is_void<R>::value && !std::is_same<R, std::string>::value,
         R
     >::type
     decode(const std::string &data, const std::tuple<Type...> &args, const ClientContext &context) {
@@ -312,6 +342,35 @@ private:
             throw std::runtime_error("wrong response: \r\n" + data);
         }
         return result;
+    }
+
+    template<class R, class... Type>
+    typename std::enable_if<
+        std::is_void<R>::value,
+        R
+    >::type
+    decode(const std::string &data, const std::tuple<Type...> &args, const ClientContext &context) {
+        (void)args;
+        checkData(data);
+        if (context.settings.mode != Normal) {
+            throw std::runtime_error("only normal mode can return non string type");
+        }
+
+        std::istringstream stream(data);
+        io::Reader reader(stream);
+        auto tag = reader.stream.get();
+        if (tag == io::TagResult) {
+            reader.readNull();
+            tag = reader.stream.get();
+            if (tag == io::TagArgument) {
+
+            }
+        } else if (tag == io::TagError) {
+            throw std::runtime_error(reader.readString<std::string>());
+        }
+        if (tag != io::TagEnd) {
+            throw std::runtime_error("wrong response: \r\n" + data);
+        }
     }
 
     template<class R, class... Type>

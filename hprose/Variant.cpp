@@ -64,7 +64,7 @@ const char *Variant::typeName() const {
 void Variant::decode(io::Reader &reader) {
     switch (type) {
         case Null:
-            reader.unserialize<bool*>();
+            reader.readNull();
             break;
         case Bool:
             data.vBool = reader.unserialize<bool>();

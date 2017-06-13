@@ -108,6 +108,13 @@ public:
         return decode(v, *this);
     }
 
+    inline void readNull() {
+        char tag = static_cast<char>(stream.get());
+        if (tag != TagNull) {
+            throw std::runtime_error("parse null failed");
+        }
+    }
+
     inline bool readBool() {
         return decoders::BoolDecode(*this, static_cast<char>(stream.get()));
     }
