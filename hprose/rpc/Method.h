@@ -69,7 +69,9 @@ makeMethod(F&&f) {
     typedef typename function_traits<F>::arg_type arg_type;
     auto fun = [f](hprose::rpc::ServiceContext &context) {
         arg_type s;
-        context.reader.unserialize(s);
+        if (std::tuple_size<arg_type>::value != 0) {
+            context.reader.unserialize(s);
+        }
         auto ret = hprose::util::apply(f, s);
         context.writer.serialize(ret);
     };
@@ -85,7 +87,9 @@ makeMethod(F&&f, Object&& object) {
     typedef typename function_traits<F>::arg_type arg_type;
     auto fun = [f, object](hprose::rpc::ServiceContext &context) {
         arg_type s;
-        context.reader.unserialize(s);
+        if (std::tuple_size<arg_type>::value != 0) {
+            context.reader.unserialize(s);
+        }
         auto ret = hprose::util::apply(f, object, s);
         context.writer.serialize(ret);
     };
@@ -101,9 +105,11 @@ makeMethod(F&&f) {
     typedef typename function_traits<F>::arg_type arg_type;
     auto fun = [f](hprose::rpc::ServiceContext &context) {
         arg_type s;
-        context.reader.unserialize(s);
+        if (std::tuple_size<arg_type>::value != 0) {
+            context.reader.unserialize(s);
+        }
         hprose::util::apply(f, s);
-        context.writer.serialize(nullptr);
+        context.writer.writeNull();
     };
     return Method(fun);
 }
@@ -117,9 +123,11 @@ makeMethod(F&&f, Object&& object) {
     typedef typename function_traits<F>::arg_type arg_type;
     auto fun = [f, object](hprose::rpc::ServiceContext &context) {
         arg_type s;
-        context.reader.unserialize(s);
+        if (std::tuple_size<arg_type>::value != 0) {
+            context.reader.unserialize(s);
+        }
         hprose::util::apply(f, object, s);
-        context.writer.serialize(nullptr);
+        context.writer.writeNull();
     };
     return Method(fun);
 }
