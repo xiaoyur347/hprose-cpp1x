@@ -63,6 +63,11 @@
 #endif
 #include <type_traits>
 
+//#define ENABLE_MEMORY_POOL
+#ifndef ENABLE_MEMORY_POOL
+#include <cstdlib>
+#endif // ENABLE_MEMORY_POOL
+
 #ifdef PM_DEBUG
 #define pm_assert(x)    assert(x)
 #else
@@ -296,6 +301,7 @@ struct pm_memory_pool_buf {
     buf_t buf_;
 };
 
+#ifdef ENABLE_MEMORY_POOL
 template <size_t SIZE>
 struct pm_size_allocator {
     static inline pm_memory_pool *get_memory_pool() {
@@ -305,6 +311,14 @@ struct pm_size_allocator {
         return pool_;
     }
 };
+#else // ENABLE_MEMORY_POOL
+struct pm_size_allocator {
+    static inline pm_memory_pool *get_memory_pool() {
+        static pm_memory_pool pool_(0);
+        return &pool_;
+    }
+};
+#endif // ENABLE_MEMORY_POOL
 
 struct pm_allocator {
 private:
@@ -312,16 +326,19 @@ private:
         static std::mutex mutex_;
         return mutex_;
     }
+#ifdef ENABLE_MEMORY_POOL
     static pm_memory_pool_buf_header *obtain_pool_buf(pm_memory_pool *pool){
         pm_list *node = pool->free_.next();
         node->detach();
         pm_memory_pool_buf_header *header = pm_container_of(node, &pm_memory_pool_buf_header::list_);
         return header;
     }
+#endif // ENABLE_MEMORY_POOL
 
     template <size_t SIZE>
     static void *obtain_impl() {
         std::lock_guard<std::mutex> guard(get_mutex());
+#ifdef ENABLE_MEMORY_POOL
         pm_memory_pool *pool = pm_size_allocator<SIZE>::get_memory_pool();
         if (pool->free_.empty()) {
             pm_memory_pool_buf<SIZE> *pool_buf = 
@@ -336,14 +353,26 @@ private:
             //printf("++++ obtain = %p %d\n", (void *)&pool_buf->buf_, sizeof(T));
             return (void *)&pool_buf->buf_;
         }
+#else // ENABLE_MEMORY_POOL
+        pm_memory_pool *pool = pm_size_allocator::get_memory_pool();
+        pm_memory_pool_buf<SIZE> *pool_buf = reinterpret_cast<pm_memory_pool_buf<SIZE> *>(
+            malloc(sizeof(pm_memory_pool_buf<SIZE>)));
+        new (pool_buf) pm_memory_pool_buf<SIZE>(pool);
+        return &pool_buf->buf_;
+#endif // ENABLE_MEMORY_POOL
     }
 
     static void release(void *ptr) {
         //printf("--- release = %p\n", ptr);
         std::lock_guard<std::mutex> guard(get_mutex());
         pm_memory_pool_buf_header *header = pm_memory_pool_buf_header::from_ptr(ptr);
+#ifdef ENABLE_MEMORY_POOL
         pm_memory_pool *pool = reinterpret_cast<pm_memory_pool *>(pm_stack::itr_to_ptr(header->pool_));
         pool->free_.move(&header->list_);
+#else // ENABLE_MEMORY_POOL
+        header->~pm_memory_pool_buf_header();
+        free(header);
+#endif // ENABLE_MEMORY_POOL
     }
 
     static void add_ref_impl(void *object) {
